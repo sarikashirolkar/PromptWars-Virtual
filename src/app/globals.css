@@ -206,7 +206,14 @@ body, html {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+  padding: 3rem;
   padding-bottom: 12rem;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+  margin-top: 2rem;
 }
 
 @keyframes fadeIn {

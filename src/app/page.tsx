@@ -155,8 +155,21 @@ export default function Game() {
 
   const minigame = gameState?.minigame && gameState.minigame !== "none" ? gameState.minigame : null;
 
+  const bgImageUrl = gameState?.environment 
+    ? `https://image.pollinations.ai/prompt/${encodeURIComponent(gameState.environment + ' photorealistic, dark horror cinematic lighting')}?width=1920&height=1080&nologo=true`
+    : "";
+
   return (
-    <main className={`game-container ${isBloody ? 'theme-bloody' : 'theme-default'} ${isFlickering ? 'theme-flicker' : ''}`}>
+    <main 
+      className="game-container"
+      style={{
+        backgroundImage: bgImageUrl ? `url('${bgImageUrl}')` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundColor: '#050505',
+        transition: 'background-image 2s ease-in-out'
+      }}
+    >
       <div className="crt-effect" />
       <div className="vignette-overlay" />
       <div className="particles-layer" />
