@@ -7,16 +7,25 @@ type GameState = { narrative: string; choices: string[]; environment: string; mi
 
 // --- Minigame Components ---
 
-function DecoderMinigame({ onSolve }: { onSolve: () => void }) {
+function DecoderMinigame({ onSolve, onHint }: { onSolve: (points: number) => void, onHint: (cost: number) => void }) {
   const [code, setCode] = useState(Math.floor(100 + Math.random() * 900).toString());
   const [guess, setGuess] = useState("");
   const [feedback, setFeedback] = useState("Enter 3-digit combination");
+  const [hintsUsed, setHintsUsed] = useState(0);
+
+  const getHint = () => {
+    if (hintsUsed < 2) {
+      onHint(10);
+      setFeedback("HINT DEDUCTED: -10 XP");
+      setHintsUsed(prev => prev + 1);
+    }
+  };
 
   const submitGuess = (e: React.FormEvent) => {
     e.preventDefault();
     if (guess === code) {
       setFeedback("ACCESS GRANTED.");
-      setTimeout(onSolve, 1000);
+      setTimeout(() => onSolve(30), 1000);
     } else if (guess > code) {
       setFeedback("ERR: TOO HIGH");
     } else {
@@ -25,12 +34,24 @@ function DecoderMinigame({ onSolve }: { onSolve: () => void }) {
     setGuess("");
   };
 
+  let hintText = "";
+  if (hintsUsed === 1) hintText = `HINT: Starts with [${code[0]}**]`;
+  if (hintsUsed === 2) hintText = `HINT: Starts with [${code[0]}${code[1]}*]`;
+
   return (
     <div className="minigame-container decoder-machine animate-fade-in">
-      <h3 className="text-[#8b0000] font-mono tracking-widest uppercase text-xl mb-4">Secure Terminal</h3>
-      <div className="bg-[#111] p-4 font-mono text-[#00ff00] text-center mb-4 border border-[#333]">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-[#8b0000] font-mono tracking-widest uppercase text-xl mb-0">Secure Terminal</h3>
+        {hintsUsed < 2 && (
+          <button onClick={getHint} className="text-xs bg-[#333] hover:bg-[#8b0000] text-gray-300 px-2 py-1 border border-[#555] transition">
+            GET HINT (-10 XP)
+          </button>
+        )}
+      </div>
+      <div className="bg-[#111] p-4 font-mono text-[#00ff00] text-center mb-2 border border-[#333]">
         {feedback}
       </div>
+      {hintText && <div className="text-yellow-600 font-mono text-center mb-4 text-sm tracking-widest">{hintText}</div>}
       <form onSubmit={submitGuess} className="flex gap-2">
         <input 
           type="number" 
@@ -47,7 +68,7 @@ function DecoderMinigame({ onSolve }: { onSolve: () => void }) {
   );
 }
 
-function WiresMinigame({ onSolve }: { onSolve: () => void }) {
+function WiresMinigame({ onSolve }: { onSolve: (points: number) => void }) {
   const sequence = ["red", "blue", "green"];
   const [currentStep, setCurrentStep] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -55,7 +76,7 @@ function WiresMinigame({ onSolve }: { onSolve: () => void }) {
   const cutWire = (color: string) => {
     if (color === sequence[currentStep]) {
       if (currentStep === 2) {
-        onSolve();
+        onSolve(30);
       } else {
         setCurrentStep(prev => prev + 1);
       }
@@ -99,6 +120,7 @@ export default function Game() {
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
   const [customInput, setCustomInput] = useState("");
+  const [score, setScore] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -149,6 +171,15 @@ export default function Game() {
     sendAction("I wake up in a dark room. I have no memory of how I got here.");
   };
 
+  const handleMinigameSolve = (actionText: string, earnedPoints: number) => {
+    setScore(prev => prev + earnedPoints);
+    sendAction(actionText);
+  };
+
+  const handleHintDeduction = (cost: number) => {
+    setScore(prev => prev - cost);
+  };
+
   const currentTheme = gameState?.environment?.toLowerCase() || "dark";
   const isBloody = currentTheme.includes("blood") || currentTheme.includes("red");
   const isFlickering = currentTheme.includes("flickering") || currentTheme.includes("broken");
@@ -174,6 +205,14 @@ export default function Game() {
       <div className="vignette-overlay" />
       <div className="particles-layer" />
       
+      {/* SCORE BOARD */}
+      {started && (
+        <div className="absolute top-6 left-6 z-50 bg-[#111] border border-[#333] px-4 py-2 font-mono text-xl shadow-[0_0_15px_rgba(0,0,0,0.8)] flex items-center gap-3">
+          <span className="text-gray-400 text-sm tracking-widest uppercase">XP Score</span>
+          <span className={`${score < 0 ? 'text-red-500' : 'text-[#00ff00]'} font-bold`}>{score}</span>
+        </div>
+      )}
+
       {!started ? (
         <div className="start-screen">
           <h1 className="game-title glitch" data-text="The Awakening">The Awakening</h1>
@@ -182,16 +221,16 @@ export default function Game() {
           </button>
         </div>
       ) : (
-        <div className="game-ui relative z-10">
+        <div className="game-ui relative z-10 pt-16">
           <div className="narrative-container">
             {gameState ? (
               <div className="fadeIn">
                 <p className="narrative-text">{gameState.narrative}</p>
                 {minigame && (
                    <div className="mt-8 border-t border-[#8b0000] pt-8">
-                     {minigame === 'decoder' && <DecoderMinigame onSolve={() => sendAction("I successfully hacked the terminal.")} />}
-                     {minigame === 'wires' && <WiresMinigame onSolve={() => sendAction("I bypassed the wiring mechanism.")} />}
-                     {minigame === 'sequence' && <DecoderMinigame onSolve={() => sendAction("I cracked the lock.")} />}
+                     {minigame === 'decoder' && <DecoderMinigame onSolve={(pts) => handleMinigameSolve("I successfully hacked the terminal.", pts)} onHint={handleHintDeduction} />}
+                     {minigame === 'wires' && <WiresMinigame onSolve={(pts) => handleMinigameSolve("I bypassed the wiring mechanism.", pts)} />}
+                     {minigame === 'sequence' && <DecoderMinigame onSolve={(pts) => handleMinigameSolve("I cracked the lock.", pts)} onHint={handleHintDeduction} />}
                    </div>
                 )}
               </div>

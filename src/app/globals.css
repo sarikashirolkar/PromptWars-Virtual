@@ -375,6 +375,18 @@ body, html {
 .border-red-900 { border-color: #7f1d1d; }
 .text-sm { font-size: 0.875rem; }
 .text-gray-400 { color: #9ca3af; }
+.text-gray-300 { color: #d1d5db; }
+.text-yellow-600 { color: #d97706; }
+.text-xs { font-size: 0.75rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.items-center { align-items: center; }
+.absolute { position: absolute; }
+.top-6 { top: 1.5rem; }
+.left-6 { left: 1.5rem; }
+.z-50 { z-index: 50; }
+.pt-16 { padding-top: 4rem; }
+.shadow-\[0_0_15px_rgba\(0\,0\,0\,0\.8\)\] { box-shadow: 0 0 15px rgba(0,0,0,0.8); }
 .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
 .hover\:scale-105:hover { transform: scale(1.05); }
 .hover\:bg-\[\#8b0000\]:hover { background-color: #8b0000; }
