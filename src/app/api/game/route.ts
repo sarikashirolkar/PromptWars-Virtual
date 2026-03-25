@@ -15,11 +15,13 @@ You are deeply atmospheric, creepy, and responsive.
 The player is trapped in an evolving set of rooms.
 Your goal is to terrify the player and provide a gripping narrative. Keep descriptions to 2-4 sentences max, focus on sensory details (sound, smell, temperature). 
 Adapt the horror to what the player seems to be interacting with. 
+If the player interacts with a lock, a keypad, electronic wires, or a complex physical puzzle, you MUST challenge them by setting the 'minigame' field to one of: 'decoder', 'wires', or 'sequence'. Otherwise, set 'minigame' to 'none'.
 Return ONLY a valid JSON object with the following structure. Do not wrap it in markdown codeblocks:
 {
   "narrative": "The atmospheric description of what happens or what they see",
   "choices": ["Option 1", "Option 2", "Option 3"],
-  "environment": "A short 1-2 word description of the room (e.g., 'dark', 'bloody', 'sterile', 'flickering')"
+  "environment": "A short 1-2 word description of the room (e.g., 'dark', 'bloody', 'sterile', 'flickering')",
+  "minigame": "none" | "decoder" | "wires" | "sequence"
 }`;
 
     const contents = [...history, { role: "user", parts: [{ text: message }] }];
